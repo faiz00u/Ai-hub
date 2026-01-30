@@ -1,1 +1,35 @@
+<h1>Admin Panel</h1>
 
+<h3>Add Daily Prompt</h3>
+<input id="promptInput" placeholder="Today's prompt">
+<button id="addPrompt">Save Prompt</button>
+
+<h3>Add AI Tool</h3>
+<input id="toolName" placeholder="Tool name">
+<input id="toolDesc" placeholder="Description">
+<button id="addTool">Add Tool</button>
+
+<script type="module" src="js/firebase.js"></script>
+<script type="module">
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { doc, setDoc, collection, addDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+onAuthStateChanged(auth, async (user) => {
+  if(!user) location.href="login.html";
+  const snap = await getDoc(doc(db,"users",user.uid));
+  if(snap.data().role !== "admin") document.body.innerHTML="Access Denied ❌";
+});
+
+document.getElementById("addPrompt").onclick = async ()=>{
+  const text = document.getElementById("promptInput").value;
+  await setDoc(doc(db,"dailyPrompt","today"),{text});
+  alert("Daily prompt saved ✅");
+};
+
+document.getElementById("addTool").onclick = async ()=>{
+  const name = document.getElementById("toolName").value;
+  const desc = document.getElementById("toolDesc").value;
+  await addDoc(collection(db,"tools"),{name,description:desc});
+  alert("Tool added ✅");
+};
+</script>
