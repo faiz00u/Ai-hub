@@ -1,2 +1,34 @@
-<h1>Website Live Hai 🚀</h1>
+<h1>AI Tools Hub</h1>
+<p id="userEmail"></p>
+<button onclick="logout()">Logout</button>
 
+<h2>🔥 Daily Prompt</h2>
+<p id="dailyPrompt">Loading...</p>
+
+<h2>All AI Tools</h2>
+<ul id="toolsList"></ul>
+
+<script type="module" src="js/firebase.js"></script>
+<script type="module">
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) location.href = "login.html";
+  document.getElementById("userEmail").innerText = "Logged in as: " + user.email;
+
+  const promptSnap = await getDoc(doc(db, "dailyPrompt", "today"));
+  document.getElementById("dailyPrompt").innerText = promptSnap.exists() ? promptSnap.data().text : "No daily prompt";
+
+  const toolsSnap = await getDocs(collection(db, "tools"));
+  const toolsList = document.getElementById("toolsList");
+  toolsList.innerHTML = "";
+  toolsSnap.forEach(t => {
+    const li = document.createElement("li");
+    li.innerText = t.data().name + " → " + t.data().description;
+    toolsList.appendChild(li);
+  });
+});
+
+window.logout = async () => { await signOut(auth); location.href="login.html"; };
+</script>
